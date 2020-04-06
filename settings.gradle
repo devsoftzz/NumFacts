@@ -1,0 +1,2 @@
+rootProject.name='NumFacts'
+include ':app'
