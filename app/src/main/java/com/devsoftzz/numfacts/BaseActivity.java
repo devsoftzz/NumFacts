@@ -11,7 +11,7 @@ import android.widget.ProgressBar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.devsoftzz.numfacts.utils.Colours;
+import com.devsoftzz.numfacts.utils.myUtils;
 
 import java.util.ArrayList;
 
@@ -20,7 +20,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     private ProgressBar mProgressBar;
     private ImageView BubbleDecor;
     private FrameLayout mFrame;
-    private ArrayList<Integer> ColorSet = Colours.getColorSet();
+    private ArrayList<Integer> ColorSet = myUtils.getColorSet();
 
     @Override
     public void setContentView(int layoutResID) {

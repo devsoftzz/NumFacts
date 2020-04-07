@@ -2,9 +2,12 @@ package com.devsoftzz.numfacts.utils;
 
 import android.graphics.Color;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
-public class Colours {
+public class myUtils {
 
     public static ArrayList<Integer> getColorSet() {
         ArrayList<Integer> colors = new ArrayList<>();
@@ -24,6 +27,12 @@ public class Colours {
         colors.add(Color.parseColor("#673AB7"));
         colors.add(Color.parseColor("#9C27B0"));
         return colors;
+    }
+
+    public static String getDate() {
+        Date date = Calendar.getInstance().getTime();
+        SimpleDateFormat df = new SimpleDateFormat("M/d");
+        return df.format(date);
     }
 
 }

@@ -11,13 +11,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.devsoftzz.numfacts.R;
 import com.devsoftzz.numfacts.models.Fact;
-import com.devsoftzz.numfacts.utils.Colours;
+import com.devsoftzz.numfacts.utils.myUtils;
 
 import java.util.ArrayList;
 
 public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapter.ViewHolder> {
 
-    private ArrayList<Integer> ColorSet = Colours.getColorSet();
+    private ArrayList<Integer> ColorSet = myUtils.getColorSet();
     private ArrayList<Fact> mFacts;
 
     public HomeRecyclerAdapter(ArrayList<Fact> facts) {

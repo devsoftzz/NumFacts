@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.devsoftzz.numfacts.adapter.HomeRecyclerAdapter;
 import com.devsoftzz.numfacts.models.Fact;
 import com.devsoftzz.numfacts.utils.Constants;
-import com.devsoftzz.numfacts.utils.TodayDate;
+import com.devsoftzz.numfacts.utils.myUtils;
 import com.devsoftzz.numfacts.viewmodels.HomeViewModel;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
@@ -99,7 +99,7 @@ public class HomeActivity extends BaseActivity {
                 Log.d(TAG, "FactOfTheDay :" + factOfTheDay.getText());
 
             } else if (mFOTD.getText().toString().equals("") && isConnected) {
-                mHomeViewModel.TodayFactApi(TodayDate.getDate());
+                mHomeViewModel.TodayFactApi(myUtils.getDate());
             }
 
         });
@@ -156,7 +156,7 @@ public class HomeActivity extends BaseActivity {
                 mHorizontal.setVisibility(View.VISIBLE);
             }
             if (mFOTD.getText().toString().equals("")) {
-                mHomeViewModel.TodayFactApi(TodayDate.getDate());
+                mHomeViewModel.TodayFactApi(myUtils.getDate());
                 mProgress.setVisibility(View.VISIBLE);
             }
         }

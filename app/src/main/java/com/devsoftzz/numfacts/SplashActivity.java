@@ -10,9 +10,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 
-import com.devsoftzz.numfacts.utils.Colours;
 import com.devsoftzz.numfacts.utils.Constants;
-import com.devsoftzz.numfacts.utils.TodayDate;
+import com.devsoftzz.numfacts.utils.myUtils;
 import com.devsoftzz.numfacts.viewmodels.HomeViewModel;
 
 import java.util.ArrayList;
@@ -25,7 +24,7 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash);
 
         CardView cardView = findViewById(R.id.card);
-        ArrayList<Integer> colorSet = Colours.getColorSet();
+        ArrayList<Integer> colorSet = myUtils.getColorSet();
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         int cnt = sharedPreferences.getInt(Constants.AppStartCount, 0);
@@ -33,7 +32,7 @@ public class SplashActivity extends AppCompatActivity {
         sharedPreferences.edit().putInt(Constants.AppStartCount, cnt + 1).apply();
 
         HomeViewModel homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
-        homeViewModel.TodayFactApi(TodayDate.getDate());
+        homeViewModel.TodayFactApi(myUtils.getDate());
         homeViewModel.FactsApi(15);
 
         new Handler().postDelayed(() -> {
