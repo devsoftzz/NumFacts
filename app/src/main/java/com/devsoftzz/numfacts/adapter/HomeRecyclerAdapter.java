@@ -56,8 +56,8 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
             textView = itemView.findViewById(R.id.textview_recycler);
             this.onCardListener = onCardListener;
 
-            itemView.setOnLongClickListener(this);
-            itemView.setOnClickListener(this);
+            cardView.setOnLongClickListener(this);
+            cardView.setOnClickListener(this);
         }
 
         @Override

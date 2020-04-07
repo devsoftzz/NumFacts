@@ -2,7 +2,9 @@ package com.devsoftzz.numfacts;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -16,6 +18,7 @@ import com.devsoftzz.numfacts.models.Fact;
 import com.devsoftzz.numfacts.utils.Constants;
 import com.devsoftzz.numfacts.utils.myUtils;
 import com.devsoftzz.numfacts.viewmodels.HomeViewModel;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.yarolegovich.discretescrollview.DiscreteScrollView;
@@ -33,6 +36,8 @@ public class HomeActivity extends BaseActivity implements HomeRecyclerAdapter.on
     private HomeRecyclerAdapter mAdapter;
     private ProgressBar mProgress, mHorizontal;
     private Snackbar mSnackbar;
+    private LinearLayout mSheet;
+    private BottomSheetBehavior mBottomBehavior;
 
     private ArrayList<Fact> mDataSet;
     private Integer count = 15;
@@ -56,6 +61,10 @@ public class HomeActivity extends BaseActivity implements HomeRecyclerAdapter.on
         mHorizontal = findViewById(R.id.horizontalprocessing);
         mScrollView = findViewById(R.id.recyclerHome);
         mFOTD = findViewById(R.id.factoftheday_textview);
+        mSheet = findViewById(R.id.bottom_sheet);
+
+        mBottomBehavior = BottomSheetBehavior.from(mSheet);
+        mBottomBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
 
         mScrollView.setItemTransitionTimeMillis(400);
         mScrollView.setItemTransformer(new ScaleTransformer.Builder()
@@ -63,6 +72,7 @@ public class HomeActivity extends BaseActivity implements HomeRecyclerAdapter.on
                 .setMinScale(0.9f)
                 .build());
         mScrollView.addOnItemChangedListener(new RecyclerviewObserver());
+        mScrollView.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> mBottomBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED));
 
         mAdapter = new HomeRecyclerAdapter(mDataSet, this);
         mScrollView.setAdapter(mAdapter);
@@ -73,12 +83,14 @@ public class HomeActivity extends BaseActivity implements HomeRecyclerAdapter.on
 
     @Override
     public void onCardLongClick(int position) {
-        //TODO show bottom sheet
+        mBottomBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
     @Override
     public void onCardClick() {
-        Toast.makeText(this, "Long Press to Share", Toast.LENGTH_SHORT).show();
+        if (mBottomBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+            Toast.makeText(this, "Long Press to Share", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private class RecyclerviewObserver implements DiscreteScrollView.OnItemChangedListener {
@@ -86,6 +98,7 @@ public class HomeActivity extends BaseActivity implements HomeRecyclerAdapter.on
         @Override
         public void onCurrentItemChanged(@Nullable RecyclerView.ViewHolder viewHolder, int i) {
 
+            //mBottomBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
             setBubbleDecorColor(i);
             if (i == mDataSet.size() - 1 && mDataSet.size() == count && isConnected) {
                 count += 10;
