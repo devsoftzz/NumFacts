@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
@@ -22,7 +23,7 @@ import com.yarolegovich.discretescrollview.transform.ScaleTransformer;
 
 import java.util.ArrayList;
 
-public class HomeActivity extends BaseActivity {
+public class HomeActivity extends BaseActivity implements HomeRecyclerAdapter.onCardListener {
 
     private static final String TAG = Constants.TAG;
 
@@ -63,11 +64,21 @@ public class HomeActivity extends BaseActivity {
                 .build());
         mScrollView.addOnItemChangedListener(new RecyclerviewObserver());
 
-        mAdapter = new HomeRecyclerAdapter(mDataSet);
+        mAdapter = new HomeRecyclerAdapter(mDataSet, this);
         mScrollView.setAdapter(mAdapter);
 
         showProgressbar(true);
         mProgress.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onCardLongClick(int position) {
+        //TODO show bottom sheet
+    }
+
+    @Override
+    public void onCardClick() {
+        Toast.makeText(this, "Long Press to Share", Toast.LENGTH_SHORT).show();
     }
 
     private class RecyclerviewObserver implements DiscreteScrollView.OnItemChangedListener {
