@@ -4,7 +4,7 @@
     android:id="@+id/bottom_sheet"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:alpha=".8"
+    android:alpha=".75"
     android:gravity="bottom"
     android:orientation="vertical"
     app:behavior_hideable="true"
@@ -17,11 +17,11 @@
         app:cardBackgroundColor="@color/background"
         app:cardCornerRadius="8dp">
 
-        <androidx.cardview.widget.CardView
+        <View
             android:layout_width="match_parent"
             android:layout_height="8dp"
             android:layout_gravity="center_horizontal"
-            app:cardBackgroundColor="@color/colorAccent" />
+            android:background="@color/colorAccent"/>
 
         <LinearLayout
             android:layout_width="match_parent"

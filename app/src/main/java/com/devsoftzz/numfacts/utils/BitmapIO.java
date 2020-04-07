@@ -3,6 +3,7 @@ package com.devsoftzz.numfacts.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaScannerConnection;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -36,6 +37,7 @@ public class BitmapIO {
 
     public static String saveBitmapToExternalStorage(Context context, Bitmap bitmap, String filename) {
 
+
         //External Storage
         String locationPath = Environment.getExternalStorageDirectory().getAbsolutePath() + SD_CARD_DIR_NAME;
 
@@ -55,8 +57,8 @@ public class BitmapIO {
             fOut.flush();
             fOut.close();
 
-            MediaStore.Images.Media.insertImage(context.getContentResolver(), file.getAbsolutePath(), file.getName(), file.getName());
-
+            //MediaStore.Images.Media.insertImage(context.getContentResolver(), file.getAbsolutePath(), file.getName(), file.getName());
+            MediaScannerConnection.scanFile(context, new String[]{locationPath + "/" + filename}, new String[]{"image/jpeg"}, null);
             return locationPath + "/" + filename;
 
         } catch (Exception e) {

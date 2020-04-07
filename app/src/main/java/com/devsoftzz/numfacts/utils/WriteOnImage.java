@@ -18,7 +18,7 @@ import com.devsoftzz.numfacts.R;
 
 public class WriteOnImage {
 
-    public Bitmap drawMultilineTextToImage(Context context, String text, float size, Integer textColor) {
+    public static Bitmap drawMultilineTextToImage(Context context, String text, float size, Integer textColor) {
 
         // prepare canvas
         Resources resources = context.getResources();
@@ -32,15 +32,15 @@ public class WriteOnImage {
         // text color
         paint.setColor(textColor);
         // text size in pixels
-        paint.setTextSize((int) (size * scale));
+        paint.setTextSize((int) (size * 3 * scale));
         //font-family
-        Typeface font = ResourcesCompat.getFont(context, R.font.robot_bolditalic);
+        Typeface font = ResourcesCompat.getFont(context, R.font.roboto_light);
         paint.setTypeface(font);
         // text Shadow
         paint.setShadowLayer(2, size / 10, size / 10, Color.parseColor("#D6D6D6"));
 
         // set text width to canvas width minus padding
-        int textWidth = canvas.getWidth() - (int) (32 * scale);
+        int textWidth = canvas.getWidth() - (int) (100 * scale);
 
         // init StaticLayout for text
         StaticLayout textLayout = new StaticLayout(text,

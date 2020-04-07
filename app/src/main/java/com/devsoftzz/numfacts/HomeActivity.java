@@ -1,21 +1,31 @@
 package com.devsoftzz.numfacts;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.DragEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.devsoftzz.numfacts.adapter.HomeRecyclerAdapter;
 import com.devsoftzz.numfacts.models.Fact;
+import com.devsoftzz.numfacts.utils.BitmapIO;
 import com.devsoftzz.numfacts.utils.Constants;
+import com.devsoftzz.numfacts.utils.WriteOnImage;
 import com.devsoftzz.numfacts.utils.myUtils;
 import com.devsoftzz.numfacts.viewmodels.HomeViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -24,7 +34,9 @@ import com.google.android.material.snackbar.Snackbar;
 import com.yarolegovich.discretescrollview.DiscreteScrollView;
 import com.yarolegovich.discretescrollview.transform.ScaleTransformer;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class HomeActivity extends BaseActivity implements HomeRecyclerAdapter.onCardListener {
 
@@ -37,9 +49,11 @@ public class HomeActivity extends BaseActivity implements HomeRecyclerAdapter.on
     private ProgressBar mProgress, mHorizontal;
     private Snackbar mSnackbar;
     private LinearLayout mSheet;
+    private TextView mShare, mSave, mInsta;
     private BottomSheetBehavior mBottomBehavior;
 
     private ArrayList<Fact> mDataSet;
+    private ArrayList<Integer> mColorSet = myUtils.getColorSet();
     private Integer count = 15;
     private Boolean isConnected = true;
 
@@ -62,10 +76,13 @@ public class HomeActivity extends BaseActivity implements HomeRecyclerAdapter.on
         mScrollView = findViewById(R.id.recyclerHome);
         mFOTD = findViewById(R.id.factoftheday_textview);
         mSheet = findViewById(R.id.bottom_sheet);
-
+        mShare = findViewById(R.id.share);
+        mSave = findViewById(R.id.save);
+        mInsta = findViewById(R.id.insta);
         mBottomBehavior = BottomSheetBehavior.from(mSheet);
-        mBottomBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
 
+        mBottomBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        mBottomBehavior.setBottomSheetCallback(new BottomSheetObserver());
         mScrollView.setItemTransitionTimeMillis(400);
         mScrollView.setItemTransformer(new ScaleTransformer.Builder()
                 .setMaxScale(1.0f)
@@ -79,6 +96,9 @@ public class HomeActivity extends BaseActivity implements HomeRecyclerAdapter.on
 
         showProgressbar(true);
         mProgress.setVisibility(View.VISIBLE);
+        mSave.setOnClickListener(new saveFactToDevice());
+        mInsta.setOnClickListener(new shareInstaStory());
+        mShare.setOnClickListener(new shareText());
     }
 
     @Override
@@ -93,12 +113,81 @@ public class HomeActivity extends BaseActivity implements HomeRecyclerAdapter.on
         }
     }
 
+    private class shareText implements View.OnClickListener{
+
+        @Override
+        public void onClick(View v) {
+            String shareBody = mDataSet.get(mScrollView.getCurrentItem()).getText();
+            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+            sharingIntent.setType("text/plain");
+            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Did you know?");
+            sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+            startActivity(Intent.createChooser(sharingIntent,"Choose To Proceed"));
+            mBottomBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
+    }
+
+    private class shareInstaStory implements View.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            int position = mScrollView.getCurrentItem();
+            if (isStoragePermissionGranted(2)) {
+                Bitmap bitmap = WriteOnImage.drawMultilineTextToImage(HomeActivity.this, mDataSet.get(position).getText(), 26, mColorSet.get(position % mColorSet.size()));
+                String path = BitmapIO.saveBitmapToExternalStorage(HomeActivity.this, bitmap, "numfacts" + String.valueOf(Calendar.getInstance().getTimeInMillis()).substring(2, 10) + ".jpg");
+                if (path != null) {
+                    File file = new File(path);
+                    Uri backgroundAssetUri = FileProvider.getUriForFile(HomeActivity.this, BuildConfig.APPLICATION_ID + ".provider", file);
+                    Intent storiesIntent = new Intent("com.instagram.share.ADD_TO_STORY");
+                    storiesIntent.setDataAndType(backgroundAssetUri, "image/*");
+                    storiesIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    storiesIntent.setPackage("com.instagram.android");
+                    HomeActivity.this.grantUriPermission("com.instagram.android", backgroundAssetUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(storiesIntent);
+
+                } else {
+                    Toast.makeText(HomeActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
+                }
+                mBottomBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            }
+        }
+    }
+
+    private class saveFactToDevice implements View.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            int position = mScrollView.getCurrentItem();
+            if (isStoragePermissionGranted(3)) {
+                Bitmap bitmap = WriteOnImage.drawMultilineTextToImage(HomeActivity.this, mDataSet.get(position).getText(), 26, mColorSet.get(position % mColorSet.size()));
+                BitmapIO.saveBitmapToExternalStorage(HomeActivity.this, bitmap, "numfacts" + String.valueOf(Calendar.getInstance().getTimeInMillis()).substring(2, 10) + ".jpg");
+                mBottomBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            }
+        }
+    }
+
+    private class BottomSheetObserver extends BottomSheetBehavior.BottomSheetCallback {
+
+        @Override
+        public void onStateChanged(@NonNull View bottomSheet, int newState) {
+            if (mDataSet.size() == 0) {
+                mBottomBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            }
+        }
+
+        @Override
+        public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+            if (mDataSet.size() == 0) {
+                mBottomBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            }
+        }
+    }
+
     private class RecyclerviewObserver implements DiscreteScrollView.OnItemChangedListener {
 
         @Override
         public void onCurrentItemChanged(@Nullable RecyclerView.ViewHolder viewHolder, int i) {
 
-            //mBottomBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
             setBubbleDecorColor(i);
             if (i == mDataSet.size() - 1 && mDataSet.size() == count && isConnected) {
                 count += 10;
@@ -199,6 +288,37 @@ public class HomeActivity extends BaseActivity implements HomeRecyclerAdapter.on
             }
         }
         return status;
+    }
+
+    public boolean isStoragePermissionGranted(int i) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+                    checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                return true;
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, i);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case 3:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                    mSave.callOnClick();
+                }
+                break;
+
+            case 2:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                    mInsta.callOnClick();
+                }
+                break;
+        }
     }
 
 }
